@@ -1,54 +1,56 @@
-# TSAF-Ex-5-Develop-a-Population-Growth-Mode
+# TSAF-Ex-6-Exponential-Smoothing-Methods
 
 ## AIM:
-To develop a simple mathematical model for population growth using Python and use the
-model to predict future population.
+To implement and compare three exponential smoothing techniques for time-series
+forecasting:
+
+1. Simple Exponential Smoothing
+
+2. Holt's Linear Trend Method
+
+3. Holt-Winters Seasonal Method
 
 
 ## PROGRAM:
 
 ```
+import pandas as pd
 import matplotlib.pyplot as plt
-import numpy as np
+from statsmodels.tsa.holtwinters import SimpleExpSmoothing, Holt, ExponentialSmoothing
 
-# Historical financial data
-year = np.array([2020, 2021, 2022, 2023, 2024])
-revenue = np.array([50.0, 55.5, 62.0, 68.0, 74.5]) # In millions USD
+# 1. Simple Exponential Smoothing (Base usage)
+base_kwh = [450, 460, 455, 462, 448, 465, 458, 461, 450, 459]
+data1 = pd.Series(base_kwh)
+model1 = SimpleExpSmoothing(data1)
+fit1 = model1.fit(smoothing_level=0.3, optimized=False)
+forecast1 = fit1.forecast(3)
+print("1. Electricity Base Usage Forecast (SES):")
+print(forecast1)
 
-# Time indices (t = 0 to 4)
-t = np.arange(len(year))
+# 2. Holt's Linear Method (Growing usage)
+trend_kwh = [450, 470, 495, 510, 535, 560, 580, 605, 630, 655]
+data2 = pd.Series(trend_kwh)
+model2 = Holt(data2)
+fit2 = model2.fit()
+forecast2 = fit2.forecast(3)
+print("\n2. Electricity Growing Usage Forecast (Holt):")
+print(forecast2)
 
-# Fit 1st-degree polynomial: slope (b), intercept (a)
-b, a = np.polyfit(t, revenue, 1)
-
-# In-sample predictions
-predicted_revenue = a + b * t
-print(f"Base Revenue (a): {a:.2f}M")
-print(f"Annual Growth Rate (b): {b:.2f}M/year")
-print("\nYear Actual ($M) Predicted ($M)")
-for y, act, pred in zip(year, revenue, predicted_revenue):
- print(f"{y} {act:10.2f} {pred:14.2f}")
-
-# Future forecasting
-future_year = np.array([2025, 2026, 2027])
-future_t = np.array([5, 6, 7])
-future_revenue = a + b * future_t
-print("\nForecasted Revenue:")
-for fy, f_rev in zip(future_year, future_revenue):
- print(f"{fy}: ${f_rev:.2f}M")
-
-# Visualization
-plt.plot(year, revenue, 'o-', label='Actual Revenue')
-plt.plot(year, predicted_revenue, 'x--', label='Fitted Model')
-plt.plot(future_year, future_revenue, 's:', label='Forecast')
-plt.title("Company Revenue Growth Model")
-plt.xlabel("Year")
-plt.ylabel("Revenue ($ Millions)")
-plt.legend()
-plt.grid(True)
-plt.show()
+# 3. Holt-Winters Method (Weekly seasonality = 7 days)
+weekly_kwh = [
+ 500, 520, 510, 530, 580, 650, 640, # Week 1
+ 510, 535, 520, 545, 595, 670, 660, # Week 2
+ 525, 545, 535, 560, 610, 685, 675 # Week 3
+]
+data3 = pd.Series(weekly_kwh)
+model3 = ExponentialSmoothing(data3, trend="add", seasonal="add", seasonal_periods=7)
+fit3 = model3.fit()
+forecast3 = fit3.forecast(7)
+print("\n3. Weekly Electricity Usage Forecast (Holt-Winters):")
+print(forecast3)
 
 ```
 
 ## OUTPUT:
-<img width="561" height="552" alt="image" src="https://github.com/user-attachments/assets/218c982f-8b4e-43a6-b75c-2c48981d3dbe" />
+
+<img width="425" height="312" alt="image" src="https://github.com/user-attachments/assets/16974a51-b2fb-4706-bea5-29a3eaacd0a2" />
